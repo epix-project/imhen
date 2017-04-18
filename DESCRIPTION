@@ -1,0 +1,15 @@
+Package: imhen
+Type: Package
+Title: Meteorological Data for Vietnam
+Version: 0.1.3
+Author: Marc Choisy
+Maintainer: Marc Choisy <marc.choisy@ird.fr>
+Description: Contains monthly meteoroligical data in 67 climatic stations in
+    Vietnam from 1960 to 2015.
+License: MIT
+LazyData: TRUE
+RoxygenNote: 5.0.1
+Depends: R (>= 2.10)
+Suggests: knitr,
+    rmarkdown
+VignetteBuilder: knitr

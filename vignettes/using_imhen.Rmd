@@ -1,0 +1,238 @@
+---
+title: "Using meteoVN"
+csl: the-american-naturalist.csl
+output:
+  html_document:
+    theme: cerulean
+    toc: yes
+  pdf_document:
+    toc: yes
+<!-- bibliography: references.bib -->
+---
+
+<!--
+IMAGES:
+Insert them with: ![alt text](image.png)
+You can also resize them if needed: convert image.png -resize 50% image.png
+
+REFERENCES:
+For references: Put all the bibTeX references in the file "references.bib"
+in the current folder and cite the references as @key or [@key] in the text.
+Uncomment the bibliography field in the above header and put a "References"
+title wherever you want to display the reference list.
+-->
+
+```{r include=F}
+knitr::knit_hooks$set(margin = function(before,options,envir) {
+if(before) par(mgp=c(1.5,0.5,0),bty="n",plt=c(.105,.97,.13,.97)) else NULL })
+
+knitr::opts_chunk$set(margin=T,prompt=T,comment="",collapse=T,cache=T,
+dev.args=list(pointsize=11),fig.height=3.5,
+fig.width=4.24725,fig.retina=2,fig.align="center")
+```
+
+```{r}
+library(meteoVN) # for "meteo" and "stations"
+```
+
+The package contains two dataframes. The first one is `meteo` which contains the
+climatic variables `Tx`, `Ta`, `Tm`, `aH`, `rH`, `Rf` and `Sh` plus time (`year`
+and `month`) and space (`station`) information:
+
+```{r}
+head(meteo)
+```
+
+The second one is `stations` which contains the coordinates (`longitude` and
+`latitude`) and the `elevation`:
+
+```{r}
+head(stations)
+```
+
+We can plot the locations of the climatic stations:
+
+```{r}
+library(srtmVN) # for "srtm90"
+library(gadmVN) # for "gadm0"
+#plot(srtm90)
+plot(gadm0,add=F)
+with(stations,points(longitude,latitude,col="blue"))
+```
+
+We can also look at the elevations of the climatic stations:
+
+```{r}
+plot(sort(stations$elevation,T),type="o",
+     xlab="stations ranked by decreasing elevation",ylab="elevation (m)")
+```
+
+Let's look at the temperatures:
+
+```{r fig.height=.5*3.5,fig.width=1.3*4.24725}
+val <- c("Tm","Ta","Tx")
+T_range <- range(meteo[,val],na.rm=T)
+breaks <- seq(floor(T_range[1]),ceiling(T_range[2]),2)
+par(mfrow=c(1,3))
+for(i in val) hist(meteo[[i]],breaks,ann=F,col="lightgrey",ylim=c(0,10500))
+```
+
+Looks good.
+
+```{r}
+for(i in val) print(range(meteo[[i]],na.rm=T))
+with(meteo,any(!((Tm <= Ta) & (Ta <= Tx)),na.rm=T))
+```
+
+Let's loook at the other variables:
+
+```{r}
+val <- c("aH","rH","Rf","Sh")
+par(mfrow=c(2,2))
+for(i in val) hist(meteo[[i]],col="lightgrey",ann=F)
+```
+
+Looks good too.
+
+```{r}
+for(i in val) print(range(meteo[[i]],na.rm=T))
+```
+
+Let's now look at the missing values. The following function makes a time
+template from a data set:
+
+```{r}
+make_template <- function(data) {
+  year <- with(data,min(year):max(year))
+  month <- levels(data$month)
+  template <- expand.grid(month,year)[2:1]
+  setNames(data.frame(template),c("year","month"))
+}
+```
+
+The following function makes a time vector from a data set:
+
+```{r}
+make_time <- function(data,day) {
+  as.Date(with(data,paste0(day,month,year)),"%d%B%Y")
+}
+```
+
+The following function prepares the data to feed the `plot_missing` function:
+
+```{r}
+prepare <- function(data,var) {
+  template <- make_template(data)
+  f <- as.character(data$station)
+  y <- unique(f)
+  data <- split(data[,c("year","month",var)],factor(f,y)) # preserve order
+  data <- Reduce(function(...)
+    suppressWarnings(merge(...,all=T,by=c("year","month"))),data)
+  data <- merge(template,data,all=T)
+  list(x=make_time(data,1),y=y,z=data[,-(1:2)])
+}
+```
+
+The following function plots the missing values:
+
+```{r}
+plot_missing <- function(x,y,z,...) {
+# x: along the rows.
+# y: along the columns.
+  image(as.matrix(is.na(z)),axes=F,col=c("lightgrey","white"))
+  par(new=T)
+  x <- c(x,tail(x,1)+30) # add one month at the end of x
+# put the integers in the middle of the row:
+  y <- sample(0:length(y),length(x),T)+.5
+  plot(x,y,type="n",xaxs="i",yaxs="i",...)
+  box(bty="o")
+}
+```
+
+The following function put everything together:
+
+```{r}
+plot_NA <- function(data,var) {
+  with(prepare(data,var),
+       plot_missing(x,y,z,xlab="",ylab="stations from south to north"))
+  abline(v=as.Date(paste0(seq(1960,2010,10),"-01-01")),lty=2)
+}
+```
+
+Let's reorder the climatic stations from south to north:
+
+```{r}
+meteo2 <- merge(meteo,stations[,c("station","latitude")])
+meteo2 <- meteo2[with(meteo2,order(latitude,year,month)),]
+```
+
+Missing values for the `Tx` variable:
+
+```{r}
+plot_NA(meteo2,"Tx")
+```
+
+Missings values for all the temperature variables:
+
+```{r}
+par(mfrow=c(2,2))
+for(i in c("Tx","Ta","Tm")) plot_NA(meteo2,i)
+```
+
+Missing values for the absolute and relative humidities as well as for
+rainfall and hours of sunshine:
+
+```{r}
+par(mfrow=c(2,2))
+for(i in c("aH","rH","Rf","Sh")) plot_NA(meteo2,i)
+```
+
+Let's now combine the missing values from all the climatic variables:
+
+```{r}
+out <- lapply(c("Tx","Ta","Tm","aH","rH","Rf","Sh"),function(x)prepare(meteo2,x))
+tmp <- out[[1]]
+out <- lapply(out,function(x)x$z)
+tmp$z <- Reduce(`+`,out)
+```
+
+Which gives the following plot:
+
+```{r}
+with(tmp,plot_missing(x,y,z,xlab="",ylab="stations from south to north"))
+abline(v=as.Date(paste0(seq(1960,2010,10),"-01-01")),lty=2)
+sel <- c(2,13,24,53,66)
+abline(h=sel)
+```
+
+The locations of the 5 stations with missing value in the recent year are:
+
+```{r}
+(sel_stations <- tmp$y[sel])
+col <- rep("blue",nrow(stations))
+col[stations$station %in% sel_stations] <- "red"
+#plot(srtm90)
+plot(gadm0,add=F)
+with(stations,points(longitude,latitude,col=col))
+```
+
+In terms of elevation:
+
+```{r}
+stations2 <- stations[order(stations$elevation,decreasing=T),]
+sel <- stations2$station %in% sel_stations
+nb <- nrow(stations2)
+col <- rep("blue",nb)
+col[sel] <- "red"
+pch <- rep(1,nb)
+pch[sel] <- 19
+plot(stations2$elevation,type="o",col=col,pch=pch,
+     xlab="stations ranked by decreasing elevation",ylab="elevation (m)")
+```
+
+TO DO:
+
+- pairwise distances
+- time series (trends seasonalities)
+- time seasonal variation
+- PCA?

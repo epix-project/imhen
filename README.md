@@ -1,9 +1,8 @@
 # imhen 
 
-This package contains meteorological data for Vietnam from the Vietnamese
-Institute of Meteorology, Hydrology and Environment 
-([IMHEN](http://vnclimate.vn/en/about/imhen/)). This is monthly data in 67
-climatic stations from January 1960 to December 2015.
+|          |          |
+| -------- | ----------------------------------------------------------------- |
+| <img src="vignettes/imhen.png" alt="" style="width: 100px;"/> | This package contains meteorological data for Vietnam from the Vietnamese Institute of Meteorology, Hydrology and Environment  ([IMHEN](http://vnclimate.vn/en/about/imhen/)). This is monthly data in 67 climatic stations from January 1960 to December 2015. Climatic variables are min, max, average temperatures, absolute and relative humidities, rainfall and hours of sunshine. |
 
 ## Installation and loading
 

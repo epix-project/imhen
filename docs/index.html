@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+<meta name="author" content="Marc Choisy" />
+
+<meta name="date" content="2017-05-23" />
+
+<title>Using imhen</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-1.1/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-1.1/highlight.js"></script>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs && document.readyState && document.readyState === "complete") {
+   window.setTimeout(function() {
+      hljs.initHighlighting();
+   }, 0);
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+</style>
+
+
+
+<div class="container-fluid main-container">
+
+<!-- tabsets -->
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+</script>
+
+<!-- code folding -->
+
+
+
+
+
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">Using <code>imhen</code></h1>
+<h4 class="author"><em>Marc Choisy</em></h4>
+<h4 class="date"><em>2017-05-23</em></h4>
+
+</div>
+
+
+<p>This package contains meteorological data for Vietnam from the Vietnamese Institute of Meteorology, Hydrology and Environment (<a href="http://vnclimate.vn/en/about/imhen/">IMHEN</a>). This is monthly data in 67 climatic stations from January 1960 to December 2015.</p>
+<div id="installation-and-loading" class="section level2">
+<h2>Installation and loading</h2>
+<p>You can install <code>imhen</code> from <a href="https://github.com/choisy/imhen">GitHub</a></p>
+<pre class="r"><code>&gt; # install.packages(&quot;devtools&quot;)
+&gt; devtools::install_github(&quot;choisy/imhen&quot;, build_vignettes = TRUE)</code></pre>
+<p>Once installed, you can load the package:</p>
+<pre class="r"><code>&gt; library(imhen)</code></pre>
+</div>
+<div id="usage-examples" class="section level2">
+<h2>Usage examples</h2>
+<p>The package contains two dataframes. The first one is <code>meteo</code> which contains the climatic variables <code>Tx</code>, <code>Ta</code>, <code>Tm</code>, <code>aH</code>, <code>rH</code>, <code>Rf</code> and <code>Sh</code> plus time (<code>year</code> and <code>month</code>) and space (<code>station</code>) information:</p>
+<pre class="r"><code>&gt; head(meteo)
+  year    month station   Tx   Ta   Tm   aH rH    Rf Sh
+1 1961  January Bac Kan 19.1 13.9 10.5 13.1 82   5.3 NA
+2 1961 February Bac Kan 18.3 15.1 13.2 14.7 85  21.5 NA
+3 1961    March Bac Kan 23.2 19.6 17.5 20.1 87  85.4 NA
+4 1961    April Bac Kan 28.1 23.5 20.5 24.8 87 185.8 NA
+6 1961      May Bac Kan 31.2 25.8 22.1 27.1 83  34.9 NA
+7 1961     June Bac Kan 32.6 26.9 23.1 29.3 83 314.7 NA</code></pre>
+<p>Note that the data frame is not “complete”, with some combinations of the <code>year</code>, <code>month</code> and <code>station</code> being missing:</p>
+<pre class="r"><code>&gt; table(with(meteo, table(year, month, station)))
+
+    0     1 
+ 8364 36660 </code></pre>
+<p>The second one is <code>stations</code> which contains the coordinates (<code>longitude</code> and <code>latitude</code>) and the <code>elevation</code>:</p>
+<pre class="r"><code>&gt; head(stations)
+    station longitude  latitude elevation
+1   Bac Kan  105.8167 22.133333       174
+2 Bac Giang  106.2000 21.283333         7
+3  Bac Lieu  105.7167  9.283333         2
+4  Bac Ninh  106.0500 21.200000         5
+5    Ba Tri  106.6000 10.033333        12
+6     Ba Vi  106.4000 21.083333        20</code></pre>
+<div id="mapping-the-climatic-stations" class="section level3">
+<h3>Mapping the climatic stations</h3>
+<p>We can transform the climatic stations coordinates into a spatial object:</p>
+<pre class="r"><code>&gt; library(gadmVN)
+&gt; vietnam &lt;- gadm(level = &quot;country&quot;)
+&gt; coordinates(stations) &lt;- ~ longitude + latitude
+&gt; proj4string(stations) &lt;- vietnam@proj4string</code></pre>
+<p>And plot the stations on the map:</p>
+<pre class="r"><code>&gt; plot(vietnam, col = &quot;grey&quot;)
+&gt; points(stations, col = &quot;blue&quot;, pch = 3)</code></pre>
+<p><img src="index_files/figure-html/unnamed-chunk-8-1.png" width="407.736" style="display: block; margin: auto;" /></p>
+</div>
+<div id="visualizing-the-climatic-stations-elevations" class="section level3">
+<h3>Visualizing the climatic stations elevations</h3>
+<p>We can also look at the elevations of the climatic stations:</p>
+<pre class="r"><code>&gt; plot(sort(stations$elevation, TRUE), type = &quot;o&quot;,
++      xlab = &quot;stations ranked by decreasing elevation&quot;, ylab = &quot;elevation (m)&quot;)</code></pre>
+<p><img src="index_files/figure-html/unnamed-chunk-9-1.png" width="407.736" style="display: block; margin: auto;" /></p>
+</div>
+<div id="exploring-the-climatic-variables" class="section level3">
+<h3>Exploring the climatic variables</h3>
+<p>Let’s look at the temperatures:</p>
+<pre class="r"><code>&gt; val &lt;- c(&quot;Tm&quot;, &quot;Ta&quot;, &quot;Tx&quot;)
+&gt; T_range &lt;- range(meteo[, val], na.rm = TRUE)
+&gt; breaks &lt;- seq(floor(T_range[1]), ceiling(T_range[2]), 2)
+&gt; par(mfrow = c(1, 3))
+&gt; for(i in val)
++   hist(meteo[[i]], breaks, ann = FALSE, col = &quot;lightgrey&quot;, ylim = c(0, 10500))</code></pre>
+<p><img src="index_files/figure-html/unnamed-chunk-10-1.png" width="530.0568" style="display: block; margin: auto;" /></p>
+<p>Looks good. Let’s check the consistency of the values:</p>
+<pre class="r"><code>&gt; for(i in val) print(range(meteo[[i]], na.rm = TRUE))
+[1] -9.256667 29.900000
+[1]  0.0 35.8
+[1]  5.7 39.3
+&gt; with(meteo, any(!((Tm &lt;= Ta) &amp; (Ta &lt;= Tx)), na.rm = TRUE))
+[1] FALSE</code></pre>
+<p>Let’s look at the other variables:</p>
+<pre class="r"><code>&gt; val &lt;- c(&quot;aH&quot;, &quot;rH&quot;, &quot;Rf&quot;, &quot;Sh&quot;)
+&gt; par(mfrow = c(2, 2))
+&gt; for(i in val) hist(meteo[[i]], col = &quot;lightgrey&quot;, ann = FALSE)</code></pre>
+<p><img src="index_files/figure-html/unnamed-chunk-12-1.png" width="407.736" style="display: block; margin: auto;" /></p>
+<p>Looks good too.</p>
+<pre class="r"><code>&gt; for(i in val) print(range(meteo[[i]], na.rm = TRUE))
+[1]  2.9 39.9
+[1]  49 100
+[1]    0.0 2451.7
+[1]   0 674</code></pre>
+</div>
+<div id="visualizing-the-data-spatio-temporally" class="section level3">
+<h3>Visualizing the data spatio-temporally</h3>
+<p>Let’s first Make a <code>year</code>, <code>month</code>, <code>station</code> template for a full design of the data:</p>
+<pre class="r"><code>&gt; y &lt;- sort(unique(meteo$year))
+&gt; m &lt;- factor(levels(meteo$month), levels(meteo$month), ordered = TRUE)
+&gt; s &lt;- stations$station[order(coordinates(stations)[, &quot;latitude&quot;])]
+&gt; s &lt;- factor(s, s, ordered = TRUE)
+&gt; template &lt;- setNames(expand.grid(y, m, s), c(&quot;year&quot;, &quot;month&quot;, &quot;station&quot;))
+&gt; attr(template, &quot;out.attrs&quot;) &lt;- NULL  # removing useless attributes</code></pre>
+<p>The full version of the data:</p>
+<pre class="r"><code>&gt; meteo_full &lt;- merge(template, meteo, all.x = TRUE)</code></pre>
+<p>Let’s visualize it:</p>
+<pre class="r"><code>&gt; x &lt;- as.Date(with(unique(meteo_full[, c(&quot;year&quot;, &quot;month&quot;)]),
++                   paste0(year, &quot;-&quot;, as.numeric(month), &quot;-15&quot;)))
+&gt; y &lt;- seq_along(stations)
+&gt; nb &lt;- length(y)
+&gt; col &lt;- rev(heat.colors(12))
+&gt; show_data &lt;- function(var) {
++   image(x, y, t(matrix(meteo_full[[var]], nb)), col = col,
++         xlab = NA, ylab = &quot;climatic stations&quot;)
++   box(bty = &quot;o&quot;)
++ }</code></pre>
+<p>Missings values for all the temperature variables:</p>
+<pre class="r"><code>&gt; opar &lt;- par(mfrow = c(2, 2))
+&gt; for(i in c(&quot;Tx&quot;, &quot;Ta&quot;, &quot;Tm&quot;)) show_data(i)
+&gt; par(opar)</code></pre>
+<p><img src="index_files/figure-html/unnamed-chunk-17-1.png" width="407.736" style="display: block; margin: auto;" /></p>
+<p>Showing very well the higher seasonality in the north than in the south. Missing values for the absolute and relative humidities as well as for rainfall and hours of sunshine:</p>
+<pre class="r"><code>&gt; opar &lt;- par(mfrow = c(2, 2))
+&gt; for(i in c(&quot;aH&quot;, &quot;rH&quot;, &quot;Rf&quot;, &quot;Sh&quot;)) show_data(i)</code></pre>
+<p><img src="index_files/figure-html/unnamed-chunk-18-1.png" width="407.736" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>&gt; par(opar)</code></pre>
+<p>Showing strong seasonality of absolute humidity in the north of the country, interesting pattern of relative humidity in the center of the country, high rainfalls in the fall in the center of the country, and out-of-phase oscillations of the number of hours of sunshine between the north and the south of the country. It seems though that there are strange outliers in sunshine in the north in 2008 or so. Let’s now combine the missing values from all the climatic variables:</p>
+<pre class="r"><code>&gt; library(magrittr)
+&gt; library(dplyr)
+&gt; meteo_full %&lt;&gt;% mutate(combined = is.na(Tx + Ta + Tm + aH + rH + Rf + Sh))
+&gt; show_data(&quot;combined&quot;)
+&gt; abline(v = as.Date(&quot;1995-01-01&quot;))</code></pre>
+<p><img src="index_files/figure-html/unnamed-chunk-19-1.png" width="407.736" style="display: block; margin: auto;" /></p>
+<p>The locations of the 6 stations with missing value in the recent year are:</p>
+<pre class="r"><code>&gt; subset(meteo_full, year &gt; 1994 &amp; combined, station, TRUE) %&gt;% unique
+[1] Bac Ninh    Tan Son Hoa Moc Hoa     Tuy Hoa     Cao Bang    Bac Lieu   
+67 Levels: Ca Mau &lt; Bac Lieu &lt; Soc Trang &lt; Cang Long &lt; ... &lt; Ha Giang</code></pre>
+</div>
+</div>
+<div id="left-to-do" class="section level2">
+<h2>Left to do</h2>
+<ul>
+<li>pairwise distances</li>
+<li>time series (trends seasonalities)</li>
+<li>time seasonal variation</li>
+<li>PCA?</li>
+</ul>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

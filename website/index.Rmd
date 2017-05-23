@@ -1,0 +1,201 @@
+---
+title: "Using `imhen`"
+author: "Marc Choisy"
+date: "`r Sys.Date()`"
+---
+
+```{r include=F}
+knitr::knit_hooks$set(margin = function(before,options,envir) {
+if(before) par(mgp=c(1.5,0.5,0),bty="n",plt=c(.105,.97,.13,.97)) else NULL })
+
+knitr::opts_chunk$set(margin=T,prompt=T,comment="",collapse=T,cache=F,
+dev.args=list(pointsize=11),fig.height=3.5,
+fig.width=4.24725,fig.retina=2,fig.align="center")
+```
+
+This package contains meteorological data for Vietnam from the Vietnamese
+Institute of Meteorology, Hydrology and Environment 
+([IMHEN](http://vnclimate.vn/en/about/imhen/)). This is monthly data in 67
+climatic stations from January 1960 to December 2015.
+
+## Installation and loading
+
+You can install `imhen` from [GitHub](https://github.com/choisy/imhen)
+
+```{r eval = FALSE}
+# install.packages("devtools")
+devtools::install_github("choisy/imhen", build_vignettes = TRUE)
+```
+
+Once installed, you can load the package:
+
+```{r}
+library(imhen)
+```
+
+## Usage examples
+
+The package contains two dataframes. The first one is `meteo` which contains the
+climatic variables `Tx`, `Ta`, `Tm`, `aH`, `rH`, `Rf` and `Sh` plus time (`year`
+and `month`) and space (`station`) information:
+
+```{r}
+head(meteo)
+```
+
+Note that the data frame is not "complete", with some combinations of the `year`,
+`month` and `station` being missing:
+
+```{r}
+table(with(meteo, table(year, month, station)))
+```
+
+The second one is `stations` which contains the coordinates (`longitude` and
+`latitude`) and the `elevation`:
+
+```{r}
+head(stations)
+```
+
+### Mapping the climatic stations
+
+We can transform the climatic stations coordinates into a spatial object:
+
+```{r}
+library(gadmVN)
+vietnam <- gadm(level = "country")
+coordinates(stations) <- ~ longitude + latitude
+proj4string(stations) <- vietnam@proj4string
+```
+
+And plot the stations on the map:
+
+```{r}
+plot(vietnam, col = "grey")
+points(stations, col = "blue", pch = 3)
+```
+
+### Visualizing the climatic stations elevations
+
+We can also look at the elevations of the climatic stations:
+
+```{r}
+plot(sort(stations$elevation, TRUE), type = "o",
+     xlab = "stations ranked by decreasing elevation", ylab = "elevation (m)")
+```
+
+### Exploring the climatic variables
+
+Let's look at the temperatures:
+
+```{r fig.height = .5 * 3.5, fig.width = 1.3 * 4.24725}
+val <- c("Tm", "Ta", "Tx")
+T_range <- range(meteo[, val], na.rm = TRUE)
+breaks <- seq(floor(T_range[1]), ceiling(T_range[2]), 2)
+par(mfrow = c(1, 3))
+for(i in val)
+  hist(meteo[[i]], breaks, ann = FALSE, col = "lightgrey", ylim = c(0, 10500))
+```
+
+Looks good. Let's check the consistency of the values:
+
+```{r}
+for(i in val) print(range(meteo[[i]], na.rm = TRUE))
+with(meteo, any(!((Tm <= Ta) & (Ta <= Tx)), na.rm = TRUE))
+```
+
+Let's look at the other variables:
+
+```{r}
+val <- c("aH", "rH", "Rf", "Sh")
+par(mfrow = c(2, 2))
+for(i in val) hist(meteo[[i]], col = "lightgrey", ann = FALSE)
+```
+
+Looks good too.
+
+```{r}
+for(i in val) print(range(meteo[[i]], na.rm = TRUE))
+```
+
+### Visualizing the data spatio-temporally
+
+Let's first Make a `year`, `month`, `station` template for a full design of the
+data:
+
+```{r}
+y <- sort(unique(meteo$year))
+m <- factor(levels(meteo$month), levels(meteo$month), ordered = TRUE)
+s <- stations$station[order(coordinates(stations)[, "latitude"])]
+s <- factor(s, s, ordered = TRUE)
+template <- setNames(expand.grid(y, m, s), c("year", "month", "station"))
+attr(template, "out.attrs") <- NULL  # removing useless attributes
+```
+
+The full version of the data:
+
+```{r}
+meteo_full <- merge(template, meteo, all.x = TRUE)
+```
+
+Let's visualize it:
+
+```{r}
+x <- as.Date(with(unique(meteo_full[, c("year", "month")]),
+                  paste0(year, "-", as.numeric(month), "-15")))
+y <- seq_along(stations)
+nb <- length(y)
+col <- rev(heat.colors(12))
+show_data <- function(var) {
+  image(x, y, t(matrix(meteo_full[[var]], nb)), col = col,
+        xlab = NA, ylab = "climatic stations")
+  box(bty = "o")
+}
+```
+
+Missings values for all the temperature variables:
+
+```{r}
+opar <- par(mfrow = c(2, 2))
+for(i in c("Tx", "Ta", "Tm")) show_data(i)
+par(opar)
+```
+
+Showing very well the higher seasonality in the north than in the south. Missing
+values for the absolute and relative humidities as well as for rainfall and
+hours of sunshine:
+
+```{r}
+opar <- par(mfrow = c(2, 2))
+for(i in c("aH", "rH", "Rf", "Sh")) show_data(i)
+par(opar)
+```
+
+Showing strong seasonality of absolute humidity in the north of the country,
+interesting pattern of relative humidity in the center of the country, high
+rainfalls in the fall in the center of the country, and out-of-phase 
+oscillations of the number of hours of sunshine between the north and the south
+of the country. It seems though that there are strange outliers in sunshine in
+the north in 2008 or so. Let's now combine the missing values from all the
+climatic variables:
+
+```{r}
+library(magrittr)
+library(dplyr)
+meteo_full %<>% mutate(combined = is.na(Tx + Ta + Tm + aH + rH + Rf + Sh))
+show_data("combined")
+abline(v = as.Date("1995-01-01"))
+```
+
+The locations of the 6 stations with missing value in the recent year are:
+
+```{r}
+subset(meteo_full, year > 1994 & combined, station, TRUE) %>% unique
+```
+
+## Left to do
+
+- pairwise distances
+- time series (trends seasonalities)
+- time seasonal variation
+- PCA?

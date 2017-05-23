@@ -131,7 +131,7 @@ $(document).ready(function () {
 </colgroup>
 <tbody>
 <tr class="odd">
-<td><img src="/Users/choisy/Dropbox/aaa/R_packages/imhen/vignettes/imhen.png" alt="" style="width: 100px;"/></td>
+<td><img src="../vignettes/imhen.png" alt="" style="width: 100px;"/></td>
 <td>This package contains meteorological data for Vietnam from the Vietnamese Institute of Meteorology, Hydrology and Environment (<a href="http://vnclimate.vn/en/about/imhen/">IMHEN</a>). This is monthly data in 67 climatic stations from January 1960 to December 2015. Climatic variables are min, max, average temperatures, absolute and relative humidities, rainfall and hours of sunshine.</td>
 </tr>
 </tbody>
@@ -158,7 +158,7 @@ $(document).ready(function () {
 <p>Note that the data frame is not “complete”, with some combinations of the <code>year</code>, <code>month</code> and <code>station</code> being missing:</p>
 <pre class="r"><code>&gt; table(with(meteo, table(year, month, station)))
 
-    0     1 
+    0     1
  8364 36660 </code></pre>
 <p>The second one is <code>stations</code> which contains the coordinates (<code>longitude</code> and <code>latitude</code>) and the <code>elevation</code>:</p>
 <pre class="r"><code>&gt; head(stations)
@@ -258,7 +258,7 @@ $(document).ready(function () {
 <p><img src="index_files/figure-html/unnamed-chunk-19-1.png" width="407.736" style="display: block; margin: auto;" /></p>
 <p>The locations of the 6 stations with missing value in the recent year are:</p>
 <pre class="r"><code>&gt; subset(meteo_full, year &gt; 1994 &amp; combined, station, TRUE) %&gt;% unique
-[1] Bac Ninh    Tan Son Hoa Moc Hoa     Tuy Hoa     Cao Bang    Bac Lieu   
+[1] Bac Ninh    Tan Son Hoa Moc Hoa     Tuy Hoa     Cao Bang    Bac Lieu
 67 Levels: Ca Mau &lt; Bac Lieu &lt; Soc Trang &lt; Cang Long &lt; ... &lt; Ha Giang</code></pre>
 </div>
 </div>

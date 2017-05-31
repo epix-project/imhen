@@ -41,4 +41,3 @@ The \code{\link{meteo}} dataset that shares the variable
 \code{station} with \code{stations}.
 }
 \keyword{datasets}
-

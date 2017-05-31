@@ -70,5 +70,8 @@ hash <- setNames(c("Bac Kan", "Bac Giang", "Bac Lieu", "Bac Ninh", "Ba Tri",
 stations$station <- factor(hash[stations$station], hash)
 meteo$station <- factor(hash[meteo$station], hash)
 
+# Correcting Tan Son Hoa coordinates:
+stations[stations$station == "Tan Son Hoa", c("longitude" ,"latitude")] <- c(106.662867, 10.795879)
+
 # Saving to disk:
 devtools::use_data(meteo, stations, overwrite = TRUE)

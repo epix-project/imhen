@@ -73,5 +73,10 @@ meteo$station <- factor(hash[meteo$station], hash)
 # Correcting Tan Son Hoa coordinates:
 stations[stations$station == "Tan Son Hoa", c("longitude" ,"latitude")] <- c(106.662867, 10.795879)
 
+# Transforming the stations data frame into a SpatialPointsDataFrame:
+stations <- sp::SpatialPointsDataFrame(
+  dplyr::select(stations, longitude, latitude),
+  stations, proj4string = marc::proj0)
+
 # Saving to disk:
 devtools::use_data(meteo, stations, overwrite = TRUE)

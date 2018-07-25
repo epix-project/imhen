@@ -6,10 +6,16 @@ Author: Marc Choisy
 Maintainer: Marc Choisy <marc.choisy@ird.fr>
 Description: Contains monthly meteoroligical data in 67 climatic stations in
     Vietnam from 1960 to 2015.
-License: MIT
+License: MIT + file LICENSE
 LazyData: TRUE
 RoxygenNote: 6.0.1
-Depends: R (>= 2.10)
-Suggests: knitr,
+Depends: 
+    R (>= 2.10)
+Suggests:
+    dplyr,
+    gadmVN,
+    knitr,
+    magrittr,
+    sp,
     rmarkdown
 VignetteBuilder: knitr

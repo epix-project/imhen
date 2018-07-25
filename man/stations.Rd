@@ -33,8 +33,8 @@ The variable \code{station} is a key shared with dataset
 \examples{
 ## Extracting the meteorological data for the stations above an elevation of
 ## 500 meters:
-sel <- subset(stations,elevation>500,station)
-subset(meteo,station\%in\%sel)
+sel <- subset(stations, elevation > 500, station)
+subset(meteo, stations$station \%in\% sel$station)
 }
 \seealso{
 The \code{\link{meteo}} dataset that shares the variable

@@ -146,4 +146,4 @@ testthat::expect_true(is.factor(meteo$station))
 
 # Clearing ---------------------------------------------------------------------
 
-#rm(list = ls())
+rm(list = ls())

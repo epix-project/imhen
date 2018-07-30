@@ -3,8 +3,9 @@
 \docType{data}
 \name{meteo}
 \alias{meteo}
+\alias{meteo_r}
 \title{Meteorological Vietnamese Data}
-\format{A data frame with 36,660 rows and 10 variables:
+\format{A data frame with 37,848 rows and 10 variables:
 \itemize{
   \item \code{year}: year of collection
   \item \code{month}: month of collection (ordered factor)
@@ -28,10 +29,15 @@ seasonality of influenza-like illness in Vietnam. \emph{Epidemics}
 }
 \usage{
 meteo
+
+meteo_r
 }
 \description{
 A dataset containing the meteorological data of Vietnam collected per month
-from 69 climatic stations, from January 1960 to December 2015.
+from 69 climatic stations, from January 1960 to December 2017. Two versions
+exist in this package, "meteo_r" is the tidy version of the raw data and
+"meteo" is the tidy, clean version of the raw data, with the temperatures
+were checked and adjusted if necessary.
 }
 \details{
 The variable \code{station} is a key shared with dataset

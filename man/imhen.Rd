@@ -7,5 +7,5 @@
 \title{imhen: Meteorological data for Vietnam.}
 \description{
 The imhen package provides monthly times series for 7 climatic variables in
-67 climatic stations of Vietnam from 1960 to 2015.
+67 climatic stations of Vietnam from 1960 to 2017.
 }

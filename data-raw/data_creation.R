@@ -1,44 +1,94 @@
+# System and Package needed
+library(magrittr) # for the " %>% ", " %<>% " pipe
+library(dplyr) # for "select"
+library(tidyr) # for "gather"
+library(purrr) #for map
+
+# Prerequisites  ---------------------------------------------------------------
+
+# Colnames table for translation
+names_col <- matrix(c(
+  "N¨m"     , "year",
+  "TB"      , "Ta",
+  "TX"      , "Tx",
+  "Tx"      , "Tx",
+  "Tm"      , "Tm",
+  "R"       , "Rf",
+  "U"       , "rH",
+  "Sh"      , "Sh",
+  "etd"     , "aH",
+  "year"    , "year",
+  "month"   , "month",
+  "station" , "station"),
+  ncol=2, byrow=T)
+names_col <- setNames(names_col[, 2], names_col[, 1])
+
+# Stations translation
+stations_transl <- read.table("data-raw/stations_dictionary.txt", sep = ";",
+                              stringsAsFactors = FALSE)
+stations_transl <- setNames(stations_transl[, 2], stations_transl[, 1])
+
+# Functions --------------------------------------------------------------------
+
 # Reads 1 given sheet of 1 given file:
 read_meteo1 <- function(file, sheet) {
-  nb_months <- 12  # number of months
+
+  nb_months <- length(month.name)
   nb_skip <- 4  # number of rows to skip in the excel files
-  data <- readxl::read_excel(file, sheet, skip = nb_skip)  # reads a sheet of a file
-  data <- data[!is.na(data[, 1]), ]  # because sometimes reads more rows than necessary
-  year <- rep(unlist(data[, 1]), nb_months)  # the year variable
-  data <- data[, -c(1, nb_months + 2)]  # removing year and year average (first and last columns)
-  month <- rep(names(data), each = nrow(data))  # the month variable
-  setNames(data.frame(year, month, unlist(data), stringsAsFactors = FALSE),
-           c("year", "month", paste(sheet)))  # adding the sheet number as the name of the data column
+  sheet_name <- readxl::excel_sheets(file)[sheet]
+
+  # reads a sheet of a file
+  data <- readxl::read_excel(file, sheet, skip = nb_skip, na =
+                               c("", "x", -999, -99.9, -9.9))
+  # because sometimes reads more rows and columns than necessary
+  data <- janitor::remove_empty(data, c("rows", "cols"))
+  # the year variables
+  names(data) %<>% gsub("N.m", "year", .)
+  # removing year average written with "_" and tidy the data
+  data <- select(data, -contains("year_"), -contains("X__")) %>%
+    gather(month, value, -contains("year")) %>%
+    rename_(.dots = setNames("value", sheet_name)) %>%
+    # re-shaping
+    mutate(month = as.roman(month) %>%
+             as.numeric() %>%
+             month.name[.] %>%
+             as.factor(),
+           year = as.integer(year))
 }
 
 # Reads 1 given file:
 read_meteo2 <- function(file) {
-  nb_sheets <- 7  # number of sheets per file
-  out <- lapply(1:nb_sheets, function(x) read_meteo1(file, x))  # reads all the sheets of the file
-  out <- Reduce(function(x, y) merge(x, y, all = TRUE), out)  # merging the sheets per year and month
-  out$station <- sub(".xls", "", file)  # adding the station variable
+  # number of sheets per file
+  nb_sheets <- length(readxl::excel_sheets(file))
+  # reads all the sheets of the file
+  out <- lapply(seq_len(nb_sheets), function(x) read_meteo1(file, x)) %>%
+    # merging the sheets per year and month
+    Reduce(function(x, y) left_join(x, y, by = c("month", "year")), .)
+  # Standardize name of the columns
+  names(out) <- names_col[names(out)]
+  # adding the station variable
+  out$station <- file %>%
+    strsplit("/") %>% purrr::map(3) %>% unlist() %>%
+    gsub(".xls", "", .) %>%
+    gsub("[[:digit:]]", "", .) %>%
+    gsub("[[:punct:]]", "", .) %>%
+    stations_transl[.] %>%
+    as.factor()
   out
 }
 
-# Reading all the meteorological data from excel files:
-files <- grep(".xls", dir("data-raw"), value = TRUE)  # the list of excel files
-files <- paste0("data-raw/", files)
-meteo <- lapply(files, read_meteo2)  # reading all the files
-meteo <- do.call(rbind, meteo)  # stacking all the files
-meteo$station <- sub("data-raw/", "", meteo$station)
+# Reading all the meteorological data from excel files -------------------------
+# the list of excel files
+files <- grep(".xls", dir("data-raw/67 tram1961-2017-Long/"), value = TRUE) %>%
+  paste0("data-raw/67 tram1961-2017-Long/", .)
 
-# Putting in shape:
-hash <- setNames(month.name, as.character(as.roman(1:12)))
-meteo$month <- hash[meteo$month]  # rename months
-names(meteo)[3:9] <- c("Ta", "Tx", "Tm", "Rf", "rH", "Sh", "aH")  # rename variables
-meteo$year <- as.integer(meteo$year)  # year as integer
-meteo$month <- factor(meteo$month, month.name)  # month as factor
-meteo$station <- factor(meteo$station)  # station as factor
-meteo <- meteo[with(meteo, order(station, year,month)), ]  # order rows
-# reorder columns:
-meteo <- meteo[, c("year", "month", "station", "Tx", "Ta", "Tm", "aH", "rH", "Rf", "Sh")]
-# ordering the months:
-meteo$month <- as.ordered(meteo$month)
+# reading all the files and stacking them all
+meteo <- lapply(files, read_meteo2)  %>%
+  do.call(rbind, .) %>%
+  select(year, month, Ta, Tx, Tm, Rf, rH, Sh, aH, station) %>%
+  arrange(station, year)
+
+meteo_r <- meteo
 
 # Cleaning the data:
 meteo[which(meteo$Tx > 50), "Tx"] <- meteo[which(meteo$Tx > 50), "Tx"] / 10
@@ -46,37 +96,54 @@ meteo[which(meteo$Ta > 50), "Ta"] <- meteo[which(meteo$Ta > 50), "Ta"] / 10
 meteo[which(meteo$Tm > 50), "Tm"] <- meteo[which(meteo$Tm > 50), "Tm"] / 10
 sel <- with(meteo, which(!((Tm <= Ta) & (Ta <= Tx))))
 val <- c("Tm", "Ta", "Tx")
-for(i in sel) meteo[i, val] <- sort(meteo[i, val])
+for(i in sel) meteo[i, val] <- meteo[i, val] %<>% unlist %>% sort
 
-# Climatic stations:
+# Climatic stations ------------------------------------------------------------
 stations <- read.table("data-raw/stations.txt", TRUE)
-
-# Renaming the climatic stations:
-
-hash <- setNames(c("Bac Kan", "Bac Giang", "Bac Lieu", "Bac Ninh", "Ba Tri",
-                   "Ba Vi", "Buon Ma Thuot", "Ca Mau", "Cang Long", "Can Tho",
-                   "Cao Bang", "Cao Lanh", "Chau Doc", "Dak Nong", "Da Lat",
-                   "Da Nang", "Dien Bien", "Dong Ha", "Dong Hoi", "Dong Phu",
-                   "Ha Dong","Ha Giang", "Hai Duong", "Ha Nam", "Ha Tinh",
-                   "Hoa Binh", "Hong Gai", "Hue", "Hung Yen", "Kon Tum",
-                   "Lai Chau", "Lang Son", "Lang", "Lao Cai", "Moc Hoa",
-                   "My Tho", "Nam Dinh", "Nha Trang", "Ninh Binh", "Phan Thiet",
-                   "Phu Ho", "Phu Lien", "Phuoc Long", "Phu Quy", "Pleiku",
-                   "Quang Ngai", "Quy Nhon", "Rach Gia", "Sa Pa", "Soc Trang",
-                   "Son La", "Son Tay", "Tam Ky", "Tan Son Hoa", "Tay Ninh",
-                   "Thai Binh", "Thai Nguyen", "Thanh Hoa", "Tra My",
-                   "Tuyen Quang", "Tuy Hoa", "Viet Tri", "Vinh", "Vinh Yen",
-                   "Vung Tau", "Xuan Loc", "Yen Bai"), stations$station)
-stations$station <- factor(hash[stations$station], hash)
-meteo$station <- factor(hash[meteo$station], hash)
+stations$station %<>% as.vector %>% stations_transl[.] %>% as.factor()
 
 # Correcting Tan Son Hoa coordinates:
-stations[stations$station == "Tan Son Hoa", c("longitude" ,"latitude")] <- c(106.662867, 10.795879)
+stations[stations$station == "Tan Son Hoa",
+         c("longitude" ,"latitude")] <- c(106.662867, 10.795879)
 
 # Transforming the stations data frame into a SpatialPointsDataFrame:
-stations <- sp::SpatialPointsDataFrame(
-  dplyr::select(stations, longitude, latitude),
-  stations, proj4string = marc::proj0)
+proj0 <-
+  sp::CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs +towgs84=0,0,0")
 
-# Saving to disk:
-devtools::use_data(meteo, stations, overwrite = TRUE)
+stations <- sp::SpatialPointsDataFrame(
+  dplyr::select(stations, longitude, latitude), stations, proj4string = proj0)
+
+# Saving to disk ---------------------------------------------------------------
+
+devtools::use_data(meteo_r, meteo, stations, overwrite = TRUE)
+
+# Test -------------------------------------------------------------------------
+
+library(testthat)
+
+# Verifying the number of the stations
+expect_length(stations$station %>% unique %>% na.omit, 67)
+expect_length(meteo$station %>% unique %>% na.omit, 67)
+
+# Checking the names of the stations
+expect_equal(stations$station %>% unique %in% stations_transl %>% mean(), 1)
+expect_equal(meteo$station %>% unique %in% stations_transl %>% mean(), 1)
+
+# Checking the class of each columns
+testthat::expect_true(is.numeric(meteo$Ta))
+testthat::expect_true(is.numeric(meteo$Tx))
+testthat::expect_true(is.numeric(meteo$Tm))
+testthat::expect_true(is.numeric(meteo$Rf))
+testthat::expect_true(is.numeric(meteo$rH))
+testthat::expect_true(is.numeric(meteo$Sh))
+testthat::expect_true(is.numeric(meteo$aH))
+
+testthat::expect_true(is.integer(meteo$year))
+
+testthat::expect_true(is.factor(meteo$month))
+testthat::expect_true(is.factor(meteo$station))
+
+
+# Clearing ---------------------------------------------------------------------
+
+#rm(list = ls())

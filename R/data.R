@@ -1,9 +1,12 @@
 #' Meteorological Vietnamese Data
 #'
 #' A dataset containing the meteorological data of Vietnam collected per month
-#' from 69 climatic stations, from January 1960 to December 2015.
+#' from 69 climatic stations, from January 1960 to December 2017. Two versions
+#' exist in this package, "meteo_r" is the tidy version of the raw data and
+#' "meteo" is the tidy, clean version of the raw data, with the temperatures
+#' were checked and adjusted if necessary.
 #'
-#' @format A data frame with 36,660 rows and 10 variables:
+#' @format A data frame with 37,848 rows and 10 variables:
 #' \itemize{
 #'   \item \code{year}: year of collection
 #'   \item \code{month}: month of collection (ordered factor)
@@ -33,6 +36,9 @@
 #' sel <- subset(stations, elevation > 500, station)
 #' subset(meteo, stations$station %in% sel$statiom)
 "meteo"
+
+#' @rdname meteo
+"meteo_r"
 
 ################################################################################
 

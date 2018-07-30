@@ -21,7 +21,7 @@ fig.width=4.24725,fig.retina=2,fig.align="center")
 
 |          |          |
 | -------- | ----------------------------------------------------------------- |
-| <img src="imhen.png" alt="" style="width: 100px;"/> | This package contains meteorological data for Vietnam from the Vietnamese Institute of Meteorology, Hydrology and Environment  ([IMHEN](http://vnclimate.vn/en/about/imhen/)). This is monthly data in 67 climatic stations from January 1960 to December 2015. Climatic variables are min, max, average temperatures, absolute and relative humidities, rainfall and hours of sunshine. |
+| <img src="imhen.png" alt="" style="width: 100px;"/> | This package contains meteorological data for Vietnam from the Vietnamese Institute of Meteorology, Hydrology and Environment  ([IMHEN](http://vnclimate.vn/en/about/imhen/)). This is monthly data in 67 climatic stations from January 1960 to December 2017. Climatic variables are min, max, average temperatures, absolute and relative humidities, rainfall and hours of sunshine. |
 
 ## Installation and loading
 
@@ -68,9 +68,12 @@ We can transform the climatic stations coordinates into a spatial object:
 
 ```{r}
 library(gadmVN)
+library(sp)
 vietnam <- gadm(level = "country")
-coordinates(stations) <- ~ longitude + latitude
-proj4string(stations) <- vietnam@proj4string
+#coordinates(stations) <- ~ longitude + latitude
+# to check if the projection system is the same
+proj4string(stations)
+vietnam@proj4string
 ```
 
 And plot the stations on the map:

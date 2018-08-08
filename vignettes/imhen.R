@@ -24,9 +24,12 @@ head(stations)
 
 ## ------------------------------------------------------------------------
 library(gadmVN)
+library(sp)
 vietnam <- gadm(level = "country")
-coordinates(stations) <- ~ longitude + latitude
-proj4string(stations) <- vietnam@proj4string
+#coordinates(stations) <- ~ longitude + latitude
+# to check if the projection system is the same
+proj4string(stations)
+vietnam@proj4string
 
 ## ------------------------------------------------------------------------
 plot(vietnam, col = "grey")

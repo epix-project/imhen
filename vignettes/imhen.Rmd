@@ -70,7 +70,6 @@ We can transform the climatic stations coordinates into a spatial object:
 library(gadmVN)
 library(sp)
 vietnam <- gadm(level = "country")
-#coordinates(stations) <- ~ longitude + latitude
 # to check if the projection system is the same
 proj4string(stations)
 vietnam@proj4string

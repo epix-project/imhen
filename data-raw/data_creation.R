@@ -113,6 +113,11 @@ proj0 <-
 stations <- sp::SpatialPointsDataFrame(
   dplyr::select(stations, longitude, latitude), stations, proj4string = proj0)
 
+# Converting stations to an sf object:
+stations <- sf::st_as_sf(stations)
+stations[, c("longitude", "latitude")] <- NULL
+units(stations$elevation) <- units::as_units("m")
+
 # Saving to disk ---------------------------------------------------------------
 
 devtools::use_data(meteo_r, meteo, stations, overwrite = TRUE)

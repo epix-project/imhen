@@ -85,7 +85,7 @@ files <- grep(".xls", dir("data-raw/67 tram1961-2017-Long/"), value = TRUE) %>%
 # reading all the files and stacking them all
 meteo <- lapply(files, read_meteo2)  %>%
   do.call(rbind, .) %>%
-  select(station, year, month, Ta, Tx, Tm, Rf, rH, Sh, aH) %>%
+  select(year, month, station, Ta, Tx, Tm, Rf, rH, Sh, aH) %>%
   mutate(month = factor(month, month.name, ordered=TRUE)) %>%
   arrange(station, year)
 

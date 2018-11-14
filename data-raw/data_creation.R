@@ -121,7 +121,7 @@ units(stations$elevation) <- units::as_units("m")
 
 # Saving to disk ---------------------------------------------------------------
 
-devtools::use_data(meteo_r, meteo, stations, overwrite = TRUE)
+usethis::use_data(meteo_r, meteo, stations, overwrite = TRUE)
 
 # Test -------------------------------------------------------------------------
 

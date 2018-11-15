@@ -85,7 +85,8 @@ files <- grep(".xls", dir("data-raw/67 tram1961-2017-Long/"), value = TRUE) %>%
 # reading all the files and stacking them all
 meteo <- lapply(files, read_meteo2)  %>%
   do.call(rbind, .) %>%
-  select(year, month, Ta, Tx, Tm, Rf, rH, Sh, aH, station) %>%
+  select(year, month, station, Ta, Tx, Tm, Rf, rH, Sh, aH) %>%
+  mutate(month = factor(month, month.name, ordered=TRUE)) %>%
   arrange(station, year)
 
 meteo_r <- meteo
@@ -120,7 +121,7 @@ units(stations$elevation) <- units::as_units("m")
 
 # Saving to disk ---------------------------------------------------------------
 
-devtools::use_data(meteo_r, meteo, stations, overwrite = TRUE)
+usethis::use_data(meteo_r, meteo, stations, overwrite = TRUE)
 
 # Test -------------------------------------------------------------------------
 

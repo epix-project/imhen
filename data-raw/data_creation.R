@@ -89,6 +89,7 @@ meteo <- lapply(files, read_meteo2)  %>%
   mutate(month = factor(month, month.name, ordered=TRUE)) %>%
   arrange(station, year)
 
+# meteo_r is the raw data, whereas meteo is the data after cleaning.
 meteo_r <- meteo
 
 # Cleaning the data:
@@ -119,9 +120,12 @@ stations <- sf::st_as_sf(stations)
 stations[, c("longitude", "latitude")] <- NULL
 units(stations$elevation) <- units::as_units("m")
 
+# Adding interpolated and aggregated data --------------------------------------
+source("data-raw/interpolation_aggregation_pipeline.R")
+
 # Saving to disk ---------------------------------------------------------------
 
-usethis::use_data(meteo_r, meteo, stations, overwrite = TRUE)
+usethis::use_data(meteo_r, meteo, stations, meteo_intagg_2008_2017, overwrite = TRUE)
 
 # Test -------------------------------------------------------------------------
 

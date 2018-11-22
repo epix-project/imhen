@@ -4,12 +4,14 @@
 \name{meteo}
 \alias{meteo}
 \alias{meteo_r}
+\alias{meteo_intagg_2008_2017}
 \title{Meteorological Vietnamese Data}
 \format{A data frame with 37,848 rows and 10 variables:
 \itemize{
   \item \code{year}: year of collection
   \item \code{month}: month of collection (ordered factor)
-  \item \code{station}: name of the climatic station
+  \item \code{station} or \code{province}: name of the climatic station (for
+  \code{meteo} and \code{meteo_r}) or the province (for /code {meteo_intagg_2008_2017})
   \item \code{Tx}: monthly average of the daily maximal temperatures
   (in centigrad)
   \item \code{Ta}: monthly average of the daily average temperatures
@@ -31,17 +33,22 @@ seasonality of influenza-like illness in Vietnam. \emph{Epidemics}
 meteo
 
 meteo_r
+
+meteo_intagg_2008_2017
 }
 \description{
 A dataset containing the meteorological data of Vietnam collected per month
 from 69 climatic stations, from January 1960 to December 2017. Two versions
-exist in this package, "meteo_r" is the tidy version of the raw data and
-"meteo" is the tidy, clean version of the raw data, with the temperatures
-were checked and adjusted if necessary.
+exist in this package, \code{meteo_r} is the tidy version of the raw data and
+\code{meteo} is the tidy, clean version of the raw data, with the temperatures
+were checked and adjusted if necessary. Additionnally, aggregates of these
+climatic variables by the province definition of the most recent period
+(starting in 2008) are avaiable from 2008 to 2017 in \code{meteo_intagg_2008_2017}.
 }
 \details{
-The variable \code{station} is a key shared with dataset
-\code{\link{stations}}.
+The variable \code{station} is a key shared with dataset \code{\link{stations}}.
+The variable \code{province} is a key shared with the most recent polygon
+definitions of the provinces of Vietnam \code{gadmVN::gadm()$province}.
 }
 \examples{
 ## Extracting the meteorological data for the stations above an elevation of

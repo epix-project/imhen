@@ -114,4 +114,6 @@ data.frame() %>%
   mutate(rH = ifelse(rH > 100, 100, rH)) %>%
   mutate_at(vars(aH, rH, Rf, Sh), funs(ifelse(. < 0, 0, .)))
 
-meteo_intagg_2008_2017 <- dplyr::filter(out, year > 2007)
+meteo_intagg_2008_2017 <- out %>%
+  dplyr::filter(year > 2007) %>%
+  dplyr::select(year, month, province, Ta, Tx, Tm, Rf, rH, Sh, aH)

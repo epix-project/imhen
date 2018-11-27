@@ -17,12 +17,9 @@ lapply(c("sf", "sp", "raster", "sptools", "mcutils", "tidyr", "dplyr"), library,
 
 
 # The data ---------------------------------------------------------------------
+stations2 <- as(stations, "Spatial")
+stations2$latitude <- coordinates(stations2)[, 2]
 obj <- ls()
-if (! "meteo" %in% obj) meteo <- imhen::meteo
-if (! "stations" %in% obj) {
-  stations <- as(imhen::stations, "Spatial")
-  stations$latitude <- coordinates(stations)[, 2]
-}
 if (! "country" %in% obj) country <- gadm("vietnam", "sp", 0)
 if (! "provinces" %in% obj) provinces <- gadm("vietnam", "sp", 1)
 if (! "elevation" %in% obj) elevation <- srtmVN::getsrtm()
@@ -90,19 +87,19 @@ if (weighted) {
 
 
 # Calculations -----------------------------------------------------------------
-out <- meteo %>%
-  filter(year > 2003) %>%
+meteo_intagg_2008_2017 <- meteo %>%
+  filter(year > 2007) %>%
   mutate_if(is.factor, as.character) %>%
   # I. Prepare the data --------------------------------------------------------
-gather(variable, value, -year, -month, -station) %>% # defining "variable" and "value"
+  gather(variable, value, -year, -month, -station) %>% # defining "variable" and "value"
   split(list(.$variable, .$year, .$month)) %>%
   # II. For each month and variable --------------------------------------------
-parallel::mclapply(. %>%
-                     merge(stations, .) %>%       # (1) spatialize data
-                     interpolation(grid) %>%      # (2) spatial interpolation
-                     aggregation(provinces)) %>%  # (3) spatial aggregation
+  parallel::mclapply(. %>%
+                       merge(stations2, .) %>%      # (1) spatialize data
+                       interpolation(grid) %>%      # (2) spatial interpolation
+                       aggregation(provinces)) %>%  # (3) spatial aggregation
   # III. Put results into shape ------------------------------------------------
-data.frame() %>%
+  data.frame() %>%
   cbind(province = provinces$VARNAME_1, .) %>%
   gather("key", "value", -province) %>%
   separate(key, c("variable", "year", "month")) %>%
@@ -110,10 +107,7 @@ data.frame() %>%
   mutate(year  = as.integer(year),
          month = factor(month, month.name, ordered = TRUE)) %>%
   arrange(year, province, month) %>%
+  dplyr::select(year, month, province, Ta, Tx, Tm, Rf, aH, rH, Sh) %>%
   # IV. Post-calculation checks ------------------------------------------------
   mutate(rH = ifelse(rH > 100, 100, rH)) %>%
   mutate_at(vars(aH, rH, Rf, Sh), funs(ifelse(. < 0, 0, .)))
-
-meteo_intagg_2008_2017 <- out %>%
-  dplyr::filter(year > 2007) %>%
-  dplyr::select(year, month, province, Ta, Tx, Tm, Rf, aH, rH, Sh)

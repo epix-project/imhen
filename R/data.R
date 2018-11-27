@@ -15,6 +15,9 @@
 #' local population density, using the 2009 data from
 #' \href{http://www.worldpop.org.uk}{WorldPop}. The method used is detailed
 #' \href{https://choisy.github.io/2018/11/08/computing-weather-variables-by-province/}{here}.
+#' Note that values of relative humidity calculated to be higher than 100 are
+#' set to 100 and that values of absolute and relative humidities as well as
+#' rainfall and hours of sunshine calculated to be negative are set to 0.
 #'
 #' @format A data frame with 37,848 rows and 10 variables:
 #' \itemize{

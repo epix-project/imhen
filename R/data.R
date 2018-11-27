@@ -22,15 +22,15 @@
 #'   \item \code{month}: month of collection (ordered factor)
 #'   \item \code{station} or \code{province}: name of the climatic station (for
 #'   \code{meteo} and \code{meteo_r}) or the province (for /code {meteo_intagg_2008_2017})
-#'   \item \code{Tx}: monthly average of the daily maximal temperatures
-#'   (in centigrad)
 #'   \item \code{Ta}: monthly average of the daily average temperatures
+#'   (in centigrad)
+#'   \item \code{Tx}: monthly average of the daily maximal temperatures
 #'   (in centigrad)
 #'   \item \code{Tm}: monthly average of the daily minimal temperatures
 #'   (in centigrad)
+#'   \item \code{Rf}: monthly cumulative rainfall (in mm)
 #'   \item \code{aH}: monthly average of absolute humidity (in g/m3)
 #'   \item \code{rH}: monthly average of relative humidity (in \%)
-#'   \item \code{Rf}: monthly cumulative rainfall (in mm)
 #'   \item \code{Sh}: monthly cumulative number of hours of sunshine
 #' }
 #' @source Thai P.Q. et al. (2015) Seasonality of absolute humidity explains

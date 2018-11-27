@@ -116,4 +116,4 @@ data.frame() %>%
 
 meteo_intagg_2008_2017 <- out %>%
   dplyr::filter(year > 2007) %>%
-  dplyr::select(year, month, province, Ta, Tx, Tm, Rf, rH, Sh, aH)
+  dplyr::select(year, month, province, Ta, Tx, Tm, Rf, aH, rH, Sh)

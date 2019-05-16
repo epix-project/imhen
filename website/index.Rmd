@@ -63,16 +63,17 @@ We can transform the climatic stations coordinates into a spatial object:
 
 ```{r}
 library(gadmVN)
+library(sf)
 vietnam <- gadm(level = "country")
-coordinates(stations) <- ~ longitude + latitude
-proj4string(stations) <- vietnam@proj4string
+#st_coordinates(stations) <- ~ longitude + latitude
+sf::st_crs(stations) <- sf::st_crs(vietnam)
 ```
 
 And plot the stations on the map:
 
 ```{r}
-plot(vietnam, col = "grey")
-points(stations, col = "blue", pch = 3)
+plot(st_geometry(vietnam), col = "grey")
+plot(st_geometry(stations), col = "blue", pch = 3, add = TRUE)
 ```
 
 ### Visualizing the climatic stations elevations
@@ -126,7 +127,7 @@ data:
 ```{r}
 y <- sort(unique(meteo$year))
 m <- factor(levels(meteo$month), levels(meteo$month), ordered = TRUE)
-s <- stations$station[order(coordinates(stations)[, "latitude"])]
+s <- stations$station[order(st_coordinates(stations)[, "Y"])]
 s <- factor(s, s, ordered = TRUE)
 template <- setNames(expand.grid(y, m, s), c("year", "month", "station"))
 attr(template, "out.attrs") <- NULL  # removing useless attributes
@@ -143,7 +144,7 @@ Let's visualize it:
 ```{r}
 x <- as.Date(with(unique(meteo_full[, c("year", "month")]),
                   paste0(year, "-", as.numeric(month), "-15")))
-y <- seq_along(stations)
+y <- seq_along(stations$station)
 nb <- length(y)
 col <- rev(heat.colors(12))
 show_data <- function(var) {

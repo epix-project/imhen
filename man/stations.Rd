@@ -4,14 +4,13 @@
 \name{stations}
 \alias{stations}
 \title{Location and elevation of climatic stations}
-\format{A data frame with 67 rows and 4 variables:
+\format{A Simple feature collection with 67 rows and 3 variables:
 \itemize{
   \item \code{station}: name of the climatic station
-  \item \code{longitude}: longitude of the climatic station (in decimal
-  coordinates)
+  \item \code{elevation}: elevation of the climatic station (in m)
   \item \code{latitude}: latitude of the climatic station (in decimal
   coordinates)
-  \item \code{elevation}: elevation of the climatic station (in m)
+
 }}
 \source{
 Thai P.Q. et al. (2015) Seasonality of absolute humidity explains

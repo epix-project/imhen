@@ -14,7 +14,7 @@ Description: Contains monthly meteoroligical data in 67 climatic stations in
     Vietnam from 1960 to 2017.
 License: MIT + file LICENSE
 LazyData: TRUE
-RoxygenNote: 6.1.0
+RoxygenNote: 6.1.1
 Encoding: UTF-8
 Depends: 
     R (>= 2.10)
@@ -23,6 +23,6 @@ Suggests:
     gadmVN,
     knitr,
     magrittr,
-    sp,
+    sf,
     rmarkdown
 VignetteBuilder: knitr

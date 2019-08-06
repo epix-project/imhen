@@ -5,6 +5,8 @@
 
 <!-- badges: start -->
 
+[![AppVeyor build
+status](https://ci.appveyor.com/api/projects/status/github/epix-project/imhen?branch=master&svg=true)](https://ci.appveyor.com/project/epix-project/imhen)
 <!-- badges: end -->
 
 |                                                               |                                                                                                                                                                                                                                                                                                                                                                                         |

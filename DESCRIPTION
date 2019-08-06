@@ -14,7 +14,7 @@ Description: Contains monthly meteoroligical data in 67 climatic stations in
     Vietnam from 1960 to 2017.
 License: MIT + file LICENSE
 URL: https://github.com/epix-project/imhen
-BugReports: https://github.com/choisy/epix-project/imhen
+BugReports: https://github.com/epix-project/imhen
 LazyData: TRUE
 RoxygenNote: 6.1.1
 Encoding: UTF-8

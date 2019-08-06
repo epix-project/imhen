@@ -27,4 +27,6 @@ Suggests:
     magrittr,
     sf,
     rmarkdown
+Remotes:
+    epix-project/gadmVN
 VignetteBuilder: knitr

@@ -17,11 +17,12 @@ status](https://travis-ci.org/epix-project/imhen.svg?branch=master)](https://tra
 
 ## Installation and loading
 
-You can install `imhen` from [GitHub](https://github.com/choisy/imhen)
+You can install `imhen` from
+[GitHub](https://github.com/epix-project/imhen)
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("choisy/imhen", build_vignettes = TRUE)
+devtools::install_github("epix-project/imhen", build_vignettes = TRUE)
 ```
 
 Once installed, you can load the package:
